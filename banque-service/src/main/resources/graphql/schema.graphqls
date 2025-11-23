@@ -32,35 +32,38 @@ type SoldeStats {
     average: Float
 }
 
-mutation {
-    addTransaction(transaction: {
-        compteId: 1,
-        montant: 500.0,
-        date: "2024/11/18",
-        type: DEPOT
-    }) {
-        id
-        montant
-        type
-        compte {
-            id
-        }
-    }
+enum TypeTransaction {
+    DEPOT
+    RETRAIT
 }
 
-query {
-    compteTransactions(id: 1) {
-        id
-        montant
-        date
-        type
-    }
+type Transaction {
+    id: ID
+    montant: Float
+    date: String
+    type: TypeTransaction
+    compte: Compte
 }
 
-query {
-    transactionStats {
-        count
-        sumDepots
-        sumRetraits
-    }
+input TransactionRequest {
+    compteId: ID!
+    montant: Float!
+    date: String!
+    type: TypeTransaction!
+}
+
+type TransactionStats {
+    count: Long
+    sumDepots: Float
+    sumRetraits: Float
+}
+
+extend type Query {
+    compteTransactions(id: ID!): [Transaction!]!
+    allTransactions: [Transaction!]!
+    transactionStats: TransactionStats!
+}
+
+extend type Mutation {
+    addTransaction(transaction: TransactionRequest!): Transaction!
 }
